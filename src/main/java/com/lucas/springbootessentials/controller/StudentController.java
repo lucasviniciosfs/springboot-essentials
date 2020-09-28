@@ -12,30 +12,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lucas.springbootessentials.exception.ResourceNotFoundException;
 import com.lucas.springbootessentials.model.Student;
 import com.lucas.springbootessentials.repository.StudentRepository;
 
-@RequestMapping("/student")
+@RestController
+@RequestMapping(value = "/student")
 public class StudentController {
 
     @Autowired
     private StudentRepository studentRepository;
 
-    @GetMapping("/list")
+    //@GetMapping(value = "/list")
     public List<Student> getStudents(){
         return studentRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Long id){
         Optional<Student> student = studentRepository.findById(id);
-
         if(student.isPresent())
             return ResponseEntity.ok(student.get());
         else
-            return ResponseEntity.badRequest().body(new ResourceNotFoundException("Não foi encontrado nenhum aluno com este ID!"));
+            throw new ResourceNotFoundException("Não foi encontrado nenhum aluno com este ID!");
     }
 
     @PostMapping

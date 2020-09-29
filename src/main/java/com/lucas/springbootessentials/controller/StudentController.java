@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +21,8 @@ import com.lucas.springbootessentials.exception.ResourceNotFoundException;
 import com.lucas.springbootessentials.model.Student;
 import com.lucas.springbootessentials.repository.StudentRepository;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/student")
 public class StudentController {
@@ -25,7 +30,7 @@ public class StudentController {
     @Autowired
     private StudentRepository studentRepository;
 
-    //@GetMapping(value = "/list")
+    @GetMapping(value = "/list")
     public List<Student> getStudents(){
         return studentRepository.findAll();
     }
@@ -40,10 +45,9 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveStudent(@RequestBody Student student){
-        studentRepository.save(student);
-
-        return ResponseEntity.ok().build();
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<String> saveStudent(@Valid @RequestBody Student student){
+        return new ResponseEntity<>(studentRepository.save(student), HttpStatus.CREATED).ok("Estudante salvo com sucesso!");
     }
 
     @PutMapping
